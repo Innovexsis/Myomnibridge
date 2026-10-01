@@ -1,9 +1,14 @@
 {
-  "schema": 1,
+  "schema": 2,
   "repository": "vivekearthz/Myomnibridge",
   "portalKey": "myomnibridge",
   "role": "slave",
   "master": "MARTECH",
-  "patchVersion": "v56",
-  "managedBy": "project-guardian"
+  "masterPortalKey": "mysecretautomagic951f232c",
+  "masterRepo": "vivekearthz/my-secret-automagic-951f232c",
+  "masterHost": "https://martech.innovexsis.com",
+  "masterApiBase": "https://martech.innovexsis.com/api/public",
+  "patchVersion": "v74",
+  "agentVersion": 6,
+  "managedBy": "martech-master"
 }
