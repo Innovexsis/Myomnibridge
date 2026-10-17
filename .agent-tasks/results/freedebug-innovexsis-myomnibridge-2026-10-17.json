@@ -1,0 +1,15 @@
+{
+  "task_id": "freedebug-innovexsis-myomnibridge-2026-10-17",
+  "agent": "free-ai-debugger",
+  "status": "issues_found",
+  "summary": "1 findings (1 serious).",
+  "findings": [
+    {
+      "severity": "high",
+      "file": "app/root.tsx",
+      "issue": "ReferenceError in the browser because `process.env` is accessed in client‑side code. In a Vite/React‑Router bundle `process` is not defined, causing the app to crash on load.",
+      "fix": "Replace the use of `process.env` with Vite's `import.meta.env` (or another compile‑time injection) and remove the manual quote escaping. Example:\n```tsx\n// app/root.tsx\n// Replace this line:\n// const baseUrl = (process.env.OMNIBRIDGE_PUBLIC_BASE_URL ?? \"https://omnibridge-dev.vercel.app/api/v1\").replace(/\"/g, \"\\\\\\\"\");\n// With:\nconst baseUrl = (import.meta.env.VITE_OMNIBRIDGE_PUBLIC_BASE_URL ?? \"https://omnibridge-dev.vercel.app/api/v1\");\n```\nThen inject it safely:\n```tsx\n<script\n  dangerouslySetInnerHTML={{\n    __html: `window.__OMNIBRIDGE_BASE_URL__ = ${JSON.stringify(baseUrl)};`,\n  }}\n/>\n```"
+    }
+  ],
+  "reviewed_at": "2026-10-17T23:31:07.235Z"
+}
