@@ -1,0 +1,21 @@
+{
+  "task_id": "freedebug-innovexsis-myomnibridge-2026-10-19",
+  "agent": "free-ai-debugger",
+  "status": "issues_found",
+  "summary": "2 findings (0 serious).",
+  "findings": [
+    {
+      "severity": "medium",
+      "file": "app/routes.ts",
+      "issue": "API route paths are defined without a leading slash, causing them to be treated as relative routes and resulting in 404 errors for the intended endpoints.",
+      "fix": "Add a leading slash to the API route definitions:\n```ts\nexport default [\n  index(\"routes/landing.tsx\"),\n  route(\"/auth\", \"routes/auth.tsx\"),\n  route(\"/logout\", \"routes/logout.tsx\"),\n  route(\"/api/v1/chat/completions\", \"routes/api.v1.chat.completions.ts\"),\n  route(\"/api/v1/models\", \"routes/api.v1.models.ts\"),\n  route(\"/dashboard\", \"routes/dashboard/layout.tsx\", [\n    index(\"routes/dashboard/home.tsx\"),\n    route(\"chat\", \"routes/dashboard/chat.tsx\"),\n    route(\"key-management\", \"routes/dashboard/key-management.tsx\"),\n    route(\"proxy-configuration\", \"routes/dashboard/proxy-configuration.tsx\"),\n    route(\"usage-logs\", \"routes/dashboard/usage-logs.tsx\"),\n    route(\"settings\", \"routes/dashboard/settings.tsx\"),\n  ]),\n] satisfies RouteConfig;\n```"
+    },
+    {
+      "severity": "low",
+      "file": "app/root.tsx",
+      "issue": "The base URL is escaped with `replace(/\"/g, \"\\\\\\\"\")` and then passed to `JSON.stringify`, resulting in a double‑escaped string being injected into the page (`window.__OMNIBRIDGE_BASE_URL__`). This yields an incorrect value at runtime.",
+      "fix": "Remove the manual replace and let `JSON.stringify` handle escaping:\n```tsx\nconst baseUrl = process.env.OMNIBRIDGE_PUBLIC_BASE_URL ?? \"https://omnibridge-dev.vercel.app/api/v1\";\n...\n<script\n  dangerouslySetInnerHTML={{\n    __html: `window.__OMNIBRIDGE_BASE_URL__ = ${JSON.stringify(baseUrl)};`,\n  }}\n/>\n```"
+    }
+  ],
+  "reviewed_at": "2026-10-19T23:50:50.975Z"
+}
