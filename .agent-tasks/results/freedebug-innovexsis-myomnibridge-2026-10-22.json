@@ -1,0 +1,21 @@
+{
+  "task_id": "freedebug-innovexsis-myomnibridge-2026-10-22",
+  "agent": "free-ai-debugger",
+  "status": "issues_found",
+  "summary": "2 findings (1 serious).",
+  "findings": [
+    {
+      "severity": "high",
+      "file": "app/root.tsx",
+      "issue": "The code accesses `process.env` in a client‑side React component. In the browser `process` is undefined, causing a `ReferenceError` and preventing the app from rendering.",
+      "fix": "Replace the Node‑style env access with Vite's `import.meta.env` (or another build‑time injection) and provide a safe fallback. For example:\n```tsx\n// app/root.tsx\nconst baseUrl = (\n  import.meta.env.VITE_OMNIBRIDGE_PUBLIC_BASE_URL ??\n  \"https://omnibridge-dev.vercel.app/api/v1\"\n).replace(/\"/g, \"\\\\\\\"\");\n```\nThen update the Vite config to expose `VITE_OMNIBRIDGE_PUBLIC_BASE_URL`.\nAlso simplify the script injection:\n```tsx\n<script\n  dangerouslySetInnerHTML={{\n    __html: `window.__OMNIBRIDGE_BASE_URL__ = ${JSON.stringify(baseUrl)};`\n  }}\n/>\n```"
+    },
+    {
+      "severity": "medium",
+      "file": "app/routes.ts",
+      "issue": "API route definitions are missing a leading slash (e.g., `route(\"api/v1/chat/completions\", ...)`). This makes the routes resolve relative to the current path, so the intended endpoints (`/api/v1/...`) will not match and return 404.",
+      "fix": "Add a leading slash to each API route path:\n```ts\nexport default [\n  index(\"routes/landing.tsx\"),\n  route(\"/auth\", \"routes/auth.tsx\"),\n  route(\"/logout\", \"routes/logout.tsx\"),\n  route(\"/api/v1/chat/completions\", \"routes/api.v1.chat.completions.ts\"),\n  route(\"/api/v1/models\", \"routes/api.v1.models.ts\"),\n  route(\"/dashboard\", \"routes/dashboard/layout.tsx\", [\n    index(\"routes/dashboard/home.tsx\"),\n    route(\"chat\", \"routes/dashboard/chat.tsx\"),\n    // ... other dashboard routes\n  ]),\n] satisfies RouteConfig;\n```"
+    }
+  ],
+  "reviewed_at": "2026-10-22T23:40:37.586Z"
+}
