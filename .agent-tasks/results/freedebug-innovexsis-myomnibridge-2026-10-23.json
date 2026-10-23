@@ -1,0 +1,15 @@
+{
+  "task_id": "freedebug-innovexsis-myomnibridge-2026-10-23",
+  "agent": "free-ai-debugger",
+  "status": "issues_found",
+  "summary": "1 findings (0 serious).",
+  "findings": [
+    {
+      "severity": "medium",
+      "file": "app/routes.ts",
+      "issue": "API route definitions are missing a leading slash, causing them to be treated as relative paths and resulting in 404 errors for requests to '/api/v1/...'.",
+      "fix": "Add a leading '/' to the route paths:\n```ts\nexport default [\n  index(\"routes/landing.tsx\"),\n  route(\"/auth\", \"routes/auth.tsx\"),\n  route(\"/logout\", \"routes/logout.tsx\"),\n  route(\"/api/v1/chat/completions\", \"routes/api.v1.chat.completions.ts\"),\n  route(\"/api/v1/models\", \"routes/api.v1.models.ts\"),\n  route(\"/dashboard\", \"routes/dashboard/layout.tsx\", [\n    index(\"routes/dashboard/home.tsx\"),\n    route(\"chat\", \"routes/dashboard/chat.tsx\"),\n    route(\"key-management\", \"routes/dashboard/key-management.tsx\"),\n    route(\"proxy-configuration\", \"routes/dashboard/proxy-configuration.tsx\"),\n    route(\"usage-logs\", \"routes/dashboard/usage-logs.tsx\"),\n    route(\"settings\", \"routes/dashboard/settings.tsx\"),\n  ]),\n] satisfies RouteConfig;\n```"
+    }
+  ],
+  "reviewed_at": "2026-10-23T23:50:36.079Z"
+}
