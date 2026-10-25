@@ -1,0 +1,15 @@
+{
+  "task_id": "freedebug-innovexsis-myomnibridge-2026-10-25",
+  "agent": "free-ai-debugger",
+  "status": "issues_found",
+  "summary": "1 findings (0 serious).",
+  "findings": [
+    {
+      "severity": "medium",
+      "file": "app/root.tsx",
+      "issue": "The base URL is incorrectly escaped before being JSON.stringified, resulting in a script that sets `window.__OMNIBRIDGE_BASE_URL__` to a string containing extra quotes (e.g., `\"https://example.com\"`). This causes a runtime error and the client receives an invalid URL.",
+      "fix": "Remove the manual `.replace(/\"/g, \"\\\\\\\"\")` and directly JSON.stringify the raw environment value. Example:\n```tsx\nexport function Layout({ children }: { children: React.ReactNode }) {\n  const { rootCssClass, resolvedScheme } = useColorScheme();\n  const baseUrl = process.env.OMNIBRIDGE_PUBLIC_BASE_URL ?? \"https://omnibridge-dev.vercel.app/api/v1\";\n  return (\n    <html lang=\"en\" suppressHydrationWarning className={rootCssClass} style={{ colorScheme: resolvedScheme }}>\n      <head>\n        {/* ... */}\n        <script\n          dangerouslySetInnerHTML={{\n            __html: `window.__OMNIBRIDGE_BASE_URL__ = ${JSON.stringify(baseUrl)};`,\n          }}\n        />\n        {/* ... */}\n      </head>\n      {/* ... */}\n    </html>\n  );\n}\n```"
+    }
+  ],
+  "reviewed_at": "2026-10-25T00:40:35.398Z"
+}
