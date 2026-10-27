@@ -1,0 +1,27 @@
+{
+  "task_id": "freedebug-innovexsis-myomnibridge-2026-10-27",
+  "agent": "free-ai-debugger",
+  "status": "issues_found",
+  "summary": "3 findings (1 serious).",
+  "findings": [
+    {
+      "severity": "medium",
+      "file": "app/root.tsx",
+      "issue": "The base URL environment variable is double‑escaped. `replace(/\"/g, \"\\\\\\\"\")` is applied before `JSON.stringify`, resulting in a value like `\"\\\"https://example.com\\\"\"` which makes `window.__OMNIBRIDGE_BASE_URL__` contain stray quotes and breaks any code that consumes the URL.",
+      "fix": "Remove the manual replace and let `JSON.stringify` handle escaping:\n```tsx\nconst baseUrl = process.env.OMNIBRIDGE_PUBLIC_BASE_URL ?? \"https://omnibridge-dev.vercel.app/api/v1\";\n...\n<script\n  dangerouslySetInnerHTML={{\n    __html: `window.__OMNIBRIDGE_BASE_URL__ = ${JSON.stringify(baseUrl)};`\n  }}\n/>\n```"
+    },
+    {
+      "severity": "high",
+      "file": "app/routes.ts",
+      "issue": "API endpoints are registered as client‑side routes without a leading slash (e.g., `route(\"api/v1/chat/completions\", ...)`). This makes them reachable as front‑end routes and bypasses any server‑side authentication/authorization, exposing potentially sensitive functionality.",
+      "fix": "Prefix the paths with a leading slash and ensure they are handled by server‑side middleware that enforces authentication:\n```ts\nexport default [\n  // ...\n  route(\"/api/v1/chat/completions\", \"routes/api.v1.chat.completions.ts\"),\n  route(\"/api/v1/models\", \"routes/api.v1.models.ts\"),\n  // ...\n] satisfies RouteConfig;\n```"
+    },
+    {
+      "severity": "low",
+      "file": "api/index.js",
+      "issue": "The server entry imports the compiled build from `../build/server/index.js`. When the project is run in development mode (no build folder), this import throws at startup, causing the server to crash.",
+      "fix": "Guard the import with a dynamic `import()` that falls back to a no‑op handler when the build does not exist, or adjust the start script to always run after a successful build. Example fix:\n```js\nlet build = {};\ntry {\n  build = await import(\"../build/server/index.js\");\n} catch (e) {\n  console.warn(\"Build not found, running in dev mode – request handler will be a placeholder.\");\n}\nexport default createRequestHandler({ build });\n```"
+    }
+  ],
+  "reviewed_at": "2026-10-27T00:40:44.123Z"
+}
