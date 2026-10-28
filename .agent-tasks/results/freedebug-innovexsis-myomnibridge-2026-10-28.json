@@ -1,0 +1,15 @@
+{
+  "task_id": "freedebug-innovexsis-myomnibridge-2026-10-28",
+  "agent": "free-ai-debugger",
+  "status": "issues_found",
+  "summary": "1 findings (0 serious).",
+  "findings": [
+    {
+      "severity": "medium",
+      "file": "app/root.tsx",
+      "issue": "Base URL is double‑escaped before being injected into the client script. The code replaces quotes in the string and then JSON.stringify's it, resulting in a value like \"\\\"https://example.com\\\"\" which breaks client‑side usage of window.__OMNIBRIDGE_BASE_URL__.",
+      "fix": "Remove the manual replace and directly JSON.stringify the raw value.\n```tsx\n// Original\nconst baseUrl = (process.env.OMNIBRIDGE_PUBLIC_BASE_URL ?? \"https://omnibridge-dev.vercel.app/api/v1\").replace(/\"/g, \"\\\\\\\"\");\n\n// Fixed\nconst baseUrl = process.env.OMNIBRIDGE_PUBLIC_BASE_URL ?? \"https://omnibridge-dev.vercel.app/api/v1\";\n...\n<script\n  dangerouslySetInnerHTML={{\n    __html: `window.__OMNIBRIDGE_BASE_URL__ = ${JSON.stringify(baseUrl)};`,\n  }}\n/>\n```"
+    }
+  ],
+  "reviewed_at": "2026-10-28T20:30:37.063Z"
+}
