@@ -1,0 +1,21 @@
+{
+  "task_id": "freedebug-innovexsis-myomnibridge-2026-10-31",
+  "agent": "free-ai-debugger",
+  "status": "issues_found",
+  "summary": "2 findings (1 serious).",
+  "findings": [
+    {
+      "severity": "high",
+      "file": "app/root.tsx",
+      "issue": "Uses `process.env` in client‑side code, which is undefined in the browser (Vite does not polyfill `process.env` unless using a VITE_ prefixed variable). This causes a ReferenceError and crashes the app on load.",
+      "fix": "Replace the access with Vite's environment variables, e.g.:\n```tsx\n// Define VITE_OMNIBRIDGE_PUBLIC_BASE_URL in .env\nconst baseUrl = (import.meta.env.VITE_OMNIBRIDGE_PUBLIC_BASE_URL ?? \"https://omnibridge-dev.vercel.app/api/v1\").replace(/\"/g, \"\\\\\\\"\");\n```"
+    },
+    {
+      "severity": "medium",
+      "file": "app/routes.ts",
+      "issue": "API routes are defined without a leading slash (e.g., `route(\"api/v1/chat/completions\", ...)`). This makes the paths relative to the current route, leading to incorrect routing and 404 errors for API endpoints.",
+      "fix": "Add a leading slash to each API route definition:\n```ts\nexport default [\n  index(\"routes/landing.tsx\"),\n  route(\"/auth\", \"routes/auth.tsx\"),\n  route(\"/logout\", \"routes/logout.tsx\"),\n  route(\"/api/v1/chat/completions\", \"routes/api.v1.chat.completions.ts\"),\n  route(\"/api/v1/models\", \"routes/api.v1.models.ts\"),\n  // ...rest unchanged\n] satisfies RouteConfig;\n```"
+    }
+  ],
+  "reviewed_at": "2026-10-31T20:30:37.185Z"
+}
