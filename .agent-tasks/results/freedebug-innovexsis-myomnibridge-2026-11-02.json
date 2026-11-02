@@ -1,0 +1,15 @@
+{
+  "task_id": "freedebug-innovexsis-myomnibridge-2026-11-02",
+  "agent": "free-ai-debugger",
+  "status": "issues_found",
+  "summary": "1 findings (1 serious).",
+  "findings": [
+    {
+      "severity": "high",
+      "file": "app/root.tsx",
+      "issue": "Uses `process.env` in client-side React code, which is undefined in the browser environment (Vite does not polyfill `process.env`). This will cause a ReferenceError at runtime, breaking the app.",
+      "fix": "Replace `process.env` with Vite's environment variables via `import.meta.env`. For example:\n```tsx\n// At the top of the file\nconst PUBLIC_BASE_URL = import.meta.env.VITE_OMNIBRIDGE_PUBLIC_BASE_URL ?? \"https://omnibridge-dev.vercel.app/api/v1\";\n\n// Then use it\nconst baseUrl = PUBLIC_BASE_URL.replace(/\"/g, \"\\\\\\\"\");\n```\nEnsure the variable is defined in `.env` (e.g., `VITE_OMNIBRIDGE_PUBLIC_BASE_URL=...`). Remove the unnecessary `replace` if not needed."
+    }
+  ],
+  "reviewed_at": "2026-11-02T20:30:37.556Z"
+}
