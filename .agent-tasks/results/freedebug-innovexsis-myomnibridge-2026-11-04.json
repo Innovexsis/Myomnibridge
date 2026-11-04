@@ -1,0 +1,21 @@
+{
+  "task_id": "freedebug-innovexsis-myomnibridge-2026-11-04",
+  "agent": "free-ai-debugger",
+  "status": "issues_found",
+  "summary": "2 findings (1 serious).",
+  "findings": [
+    {
+      "severity": "high",
+      "file": "app/root.tsx",
+      "issue": "The base URL is double‑escaped before being injected into the client script. `replace(/\"/g, \"\\\\\\\"\")` removes quotes, then `JSON.stringify` adds another layer of quoting, resulting in `window.__OMNIBRIDGE_BASE_URL__ = \"\\\"https://...\\\"\";` which yields an invalid value and breaks any code that reads this global.",
+      "fix": "Remove the manual replace and let `JSON.stringify` handle escaping. Also ensure the environment variable is a string.\n```tsx\nexport function Layout({ children }: { children: React.ReactNode }) {\n  const { rootCssClass, resolvedScheme } = useColorScheme();\n  const baseUrl = process.env.OMNIBRIDGE_PUBLIC_BASE_URL ?? \"https://omnibridge-dev.vercel.app/api/v1\";\n  return (\n    <html lang=\"en\" suppressHydrationWarning className={rootCssClass} style={{ colorScheme: resolvedScheme }}>\n      <head>\n        {/* ... */}\n        <script\n          dangerouslySetInnerHTML={{\n            __html: `window.__OMNIBRIDGE_BASE_URL__ = ${JSON.stringify(baseUrl)};`,\n          }}\n        />\n        <Links />\n      </head>\n      {/* ... */}\n    </html>\n  );\n}\n```"
+    },
+    {
+      "severity": "low",
+      "file": "app/routes.ts",
+      "issue": "API route definitions are missing a leading slash (e.g., `route(\"api/v1/chat/completions\", ...)`). This causes the router to treat them as relative paths, potentially leading to 404 responses for API calls.",
+      "fix": "Add a leading slash to each API route path.\n```ts\nexport default [\n  index(\"routes/landing.tsx\"),\n  route(\"/auth\", \"routes/auth.tsx\"),\n  route(\"/logout\", \"routes/logout.tsx\"),\n  route(\"/api/v1/chat/completions\", \"routes/api.v1.chat.completions.ts\"),\n  route(\"/api/v1/models\", \"routes/api.v1.models.ts\"),\n  // ... rest unchanged\n] satisfies RouteConfig;\n```"
+    }
+  ],
+  "reviewed_at": "2026-11-04T20:30:36.909Z"
+}
