@@ -1,0 +1,21 @@
+{
+  "task_id": "freedebug-innovexsis-myomnibridge-2026-11-06",
+  "agent": "free-ai-debugger",
+  "status": "issues_found",
+  "summary": "2 findings (0 serious).",
+  "findings": [
+    {
+      "severity": "medium",
+      "file": "app/routes.ts",
+      "issue": "API route definitions are missing a leading slash (e.g., \"api/v1/chat/completions\" instead of \"/api/v1/chat/completions\"). This prevents the routes from matching incoming requests, leading to 404 errors for the API endpoints.",
+      "fix": "Add a leading slash to each API route path.\n```ts\nexport default [\n  index(\"routes/landing.tsx\"),\n  route(\"/auth\", \"routes/auth.tsx\"),\n  route(\"/logout\", \"routes/logout.tsx\"),\n-  route(\"api/v1/chat/completions\", \"routes/api.v1.chat.completions.ts\"),\n-  route(\"api/v1/models\", \"routes/api.v1.models.ts\"),\n+  route(\"/api/v1/chat/completions\", \"routes/api.v1.chat.completions.ts\"),\n+  route(\"/api/v1/models\", \"routes/api.v1.models.ts\"),\n  route(\"/dashboard\", \"routes/dashboard/layout.tsx\", [\n    index(\"routes/dashboard/home.tsx\"),\n    route(\"chat\", \"routes/dashboard/chat.tsx\"),\n    route(\"key-management\", \"routes/dashboard/key-management.tsx\"),\n    route(\"proxy-configuration\", \"routes/dashboard/proxy-configuration.tsx\"),\n    route(\"usage-logs\", \"routes/dashboard/usage-logs.tsx\"),\n    route(\"settin"
+    },
+    {
+      "severity": "low",
+      "file": "app/root.tsx",
+      "issue": "The client‑side code accesses `process.env.OMNIBRIDGE_PUBLIC_BASE_URL` directly. In a Vite/ESM environment `process.env` is not automatically populated at runtime, which can result in `undefined` being injected into the generated script and cause a runtime error or an incorrect base URL.",
+      "fix": "Use Vite's `import.meta.env` to read the environment variable and provide a fallback. Also simplify the string handling.\n```tsx\n// Replace the current baseUrl logic with:\nconst baseUrl = (import.meta.env.VITE_OMNIBRIDGE_PUBLIC_BASE_URL ?? \"https://omnibridge-dev.vercel.app/api/v1\");\n\n// Then inject it safely:\n<script\n  dangerouslySetInnerHTML={{\n    __html: `window.__OMNIBRIDGE_BASE_URL__ = ${JSON.stringify(baseUrl)};`,\n  }}\n/>\n```\nMake sure to expose the variable in `vite.config.ts` (e.g., `define: { 'import.meta.env.VITE_OMNIBRIDGE_PUBLIC_BASE_URL': process.env.OMNIBRIDGE_PUBLIC_BASE_URL }`)."
+    }
+  ],
+  "reviewed_at": "2026-11-06T20:30:39.669Z"
+}
