@@ -1,0 +1,21 @@
+{
+  "task_id": "freedebug-innovexsis-myomnibridge-2026-11-07",
+  "agent": "free-ai-debugger",
+  "status": "issues_found",
+  "summary": "2 findings (1 serious).",
+  "findings": [
+    {
+      "severity": "high",
+      "file": "app/routes.ts",
+      "issue": "API route definitions are missing leading slashes, causing them to be treated as relative paths and resulting in 404 errors for endpoints like \"api/v1/chat/completions\" and \"api/v1/models\".",
+      "fix": "Add a leading slash to each API route path.\n```ts\nexport default [\n  index(\"routes/landing.tsx\"),\n  route(\"/auth\", \"routes/auth.tsx\"),\n  route(\"/logout\", \"routes/logout.tsx\"),\n-  route(\"api/v1/chat/completions\", \"routes/api.v1.chat.completions.ts\"),\n-  route(\"api/v1/models\", \"routes/api.v1.models.ts\"),\n+  route(\"/api/v1/chat/completions\", \"routes/api.v1.chat.completions.ts\"),\n+  route(\"/api/v1/models\", \"routes/api.v1.models.ts\"),\n  route(\"/dashboard\", \"routes/dashboard/layout.tsx\", [\n    index(\"routes/dashboard/home.tsx\"),\n    route(\"chat\", \"routes/dashboard/chat.tsx\"),\n    route(\"key-management\", \"routes/dashboard/key-management.tsx\"),\n    route(\"proxy-configuration\", \"routes/dashboard/proxy-configuration.tsx\"),\n    route(\"usage-logs\", \"routes/dashboard/usage-logs.tsx\"),\n    route(\"settin"
+    },
+    {
+      "severity": "medium",
+      "file": "app/root.tsx",
+      "issue": "The base URL is incorrectly escaped and double‑JSON‑stringified, resulting in a value like \"\\\"https://...\\\"\" being assigned to `window.__OMNIBRIDGE_BASE_URL__`, which breaks client‑side API calls.",
+      "fix": "Remove the manual quote‑escaping and let `JSON.stringify` handle proper quoting.\n```tsx\nexport function Layout({ children }: { children: React.ReactNode }) {\n-  const { rootCssClass, resolvedScheme } = useColorScheme();\n-  const baseUrl = (process.env.OMNIBRIDGE_PUBLIC_BASE_URL ?? \"https://omnibridge-dev.vercel.app/api/v1\").replace(/\"/g, \"\\\\\\\"\");\n+  const { rootCssClass, resolvedScheme } = useColorScheme();\n+  const baseUrl = process.env.OMNIBRIDGE_PUBLIC_BASE_URL ?? \"https://omnibridge-dev.vercel.app/api/v1\";\n   return (\n@@\n-        <script\n-          dangerouslySetInnerHTML={{\n-            __html: `window.__OMNIBRIDGE_BASE_URL__ = ${JSON.stringify(baseUrl)};`,\n-          }}\n-        />\n+        <script\n+          dangerouslySetInnerHTML={{\n+            __html: `window.__OMNIBRIDGE_BASE_U"
+    }
+  ],
+  "reviewed_at": "2026-11-07T20:40:36.161Z"
+}
