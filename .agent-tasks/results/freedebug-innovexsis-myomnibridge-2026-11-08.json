@@ -1,0 +1,21 @@
+{
+  "task_id": "freedebug-innovexsis-myomnibridge-2026-11-08",
+  "agent": "free-ai-debugger",
+  "status": "issues_found",
+  "summary": "2 findings (1 serious).",
+  "findings": [
+    {
+      "severity": "high",
+      "file": "app/root.tsx",
+      "issue": "The base URL is double‑escaped: it is first manually escaped with .replace(/\"/g, \"\\\\\\\"\") and then JSON.stringify adds another layer of quoting. The resulting window.__OMNIBRIDGE_BASE_URL__ contains stray quote characters (e.g., \"\\\"https://example.com\\\"\") which leads to malformed URLs and runtime errors when the client makes API calls.",
+      "fix": "Remove the manual replace and let JSON.stringify handle escaping:\n```tsx\n// Replace this line\nconst baseUrl = (process.env.OMNIBRIDGE_PUBLIC_BASE_URL ?? \"https://omnibridge-dev.vercel.app/api/v1\").replace(/\"/g, \"\\\\\\\"\");\n// With this\nconst baseUrl = process.env.OMNIBRIDGE_PUBLIC_BASE_URL ?? \"https://omnibridge-dev.vercel.app/api/v1\";\n```\nThe dangerouslySetInnerHTML block can stay the same, as JSON.stringify will correctly produce a quoted string."
+    },
+    {
+      "severity": "medium",
+      "file": "app/routes.ts",
+      "issue": "API routes are defined without a leading slash (e.g., \"api/v1/chat/completions\"). React Router treats such paths as relative to the parent route, which can cause the endpoints to be mounted at unexpected URLs and potentially bypass authentication middleware that expects the routes under \"/api/...\".",
+      "fix": "Add a leading slash to each API route definition:\n```ts\nexport default [\n  index(\"routes/landing.tsx\"),\n  route(\"/auth\", \"routes/auth.tsx\"),\n  route(\"/logout\", \"routes/logout.tsx\"),\n  route(\"/api/v1/chat/completions\", \"routes/api.v1.chat.completions.ts\"),\n  route(\"/api/v1/models\", \"routes/api.v1.models.ts\"),\n  // ... rest unchanged\n] satisfies RouteConfig;\n```"
+    }
+  ],
+  "reviewed_at": "2026-11-08T20:30:35.399Z"
+}
