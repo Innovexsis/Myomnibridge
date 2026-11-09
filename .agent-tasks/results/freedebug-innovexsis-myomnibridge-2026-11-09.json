@@ -1,0 +1,21 @@
+{
+  "task_id": "freedebug-innovexsis-myomnibridge-2026-11-09",
+  "agent": "free-ai-debugger",
+  "status": "issues_found",
+  "summary": "2 findings (1 serious).",
+  "findings": [
+    {
+      "severity": "high",
+      "file": "app/routes.ts",
+      "issue": "API routes are defined without a leading slash (e.g., \"api/v1/chat/completions\"), so they will not match incoming requests like \"/api/v1/chat/completions\" and will return 404. This also means the endpoints are effectively unreachable and any auth middleware attached to them will never run.",
+      "fix": "Add a leading slash to the path strings for all API routes.\n```ts\nexport default [\n  index(\"routes/landing.tsx\"),\n  route(\"/auth\", \"routes/auth.tsx\"),\n  route(\"/logout\", \"routes/logout.tsx\"),\n-  route(\"api/v1/chat/completions\", \"routes/api.v1.chat.completions.ts\"),\n-  route(\"api/v1/models\", \"routes/api.v1.models.ts\"),\n+  route(\"/api/v1/chat/completions\", \"routes/api.v1.chat.completions.ts\"),\n+  route(\"/api/v1/models\", \"routes/api.v1.models.ts\"),\n  route(\"/dashboard\", \"routes/dashboard/layout.tsx\", [\n    index(\"routes/dashboard/home.tsx\"),\n    route(\"chat\", \"routes/dashboard/chat.tsx\"),\n    route(\"key-management\", \"routes/dashboard/key-management.tsx\"),\n    route(\"proxy-configuration\", \"routes/dashboard/proxy-configuration.tsx\"),\n    route(\"usage-logs\", \"routes/dashboard/usage-logs.tsx\"),\n "
+    },
+    {
+      "severity": "low",
+      "file": "app/root.tsx",
+      "issue": "The base URL is escaped twice: first with `.replace(/\"/g, \"\\\\\\\"\")` and then again with `JSON.stringify`. This produces a string like `\\\"https://example.com\\\"` which results in an invalid value for `window.__OMNIBRIDGE_BASE_URL__` on the client side.",
+      "fix": "Remove the manual replace and let `JSON.stringify` handle quoting.\n```tsx\nexport function Layout({ children }: { children: React.ReactNode }) {\n-  const baseUrl = (process.env.OMNIBRIDGE_PUBLIC_BASE_URL ?? \"https://omnibridge-dev.vercel.app/api/v1\").replace(/\"/g, \"\\\\\\\"\");\n+  const baseUrl = process.env.OMNIBRIDGE_PUBLIC_BASE_URL ?? \"https://omnibridge-dev.vercel.app/api/v1\";\n   return (\n@@\n-        <script\n-          dangerouslySetInnerHTML={{\n-            __html: `window.__OMNIBRIDGE_BASE_URL__ = ${JSON.stringify(baseUrl)};`,\n-          }}\n-        />\n+        <script\n+          dangerouslySetInnerHTML={{\n+            __html: `window.__OMNIBRIDGE_BASE_URL__ = ${JSON.stringify(baseUrl)};`,\n+          }}\n+        />\n*** End of file ***\n```"
+    }
+  ],
+  "reviewed_at": "2026-11-09T20:30:37.596Z"
+}
