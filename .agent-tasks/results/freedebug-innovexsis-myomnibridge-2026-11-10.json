@@ -1,0 +1,27 @@
+{
+  "task_id": "freedebug-innovexsis-myomnibridge-2026-11-10",
+  "agent": "free-ai-debugger",
+  "status": "issues_found",
+  "summary": "3 findings (1 serious).",
+  "findings": [
+    {
+      "severity": "medium",
+      "file": "app/root.tsx",
+      "issue": "The base URL is double‑escaped. `baseUrl` is manually escaped with `.replace(/\"/g, \"\\\\\\\"\")` and then passed to `JSON.stringify`, which adds another layer of quotes. The resulting script sets `window.__OMNIBRIDGE_BASE_URL__` to a string that includes literal quote characters, breaking client code that reads this variable.",
+      "fix": "Remove the manual replace and let `JSON.stringify` handle escaping:\n```tsx\nexport function Layout({ children }: { children: React.ReactNode }) {\n  const { rootCssClass, resolvedScheme } = useColorScheme();\n  const baseUrl = process.env.OMNIBRIDGE_PUBLIC_BASE_URL ?? \"https://omnibridge-dev.vercel.app/api/v1\";\n  return (\n    <html lang=\"en\" suppressHydrationWarning className={rootCssClass} style={{ colorScheme: resolvedScheme }}>\n      <head>\n        {/* ... */}\n        <script\n          dangerouslySetInnerHTML={{\n            __html: `window.__OMNIBRIDGE_BASE_URL__ = ${JSON.stringify(baseUrl)};`,\n          }}\n        />\n        {/* ... */}\n      </head>\n      {/* ... */}\n    </html>\n  );\n}\n```"
+    },
+    {
+      "severity": "high",
+      "file": "app/routes.ts",
+      "issue": "API routes (`api/v1/chat/completions` and `api/v1/models`) are exposed without any authentication or authorization checks. This allows unauthenticated users to invoke potentially sensitive endpoints, leading to data leakage or abuse.",
+      "fix": "Wrap the route handlers with an authentication guard. For example, create a `requireAuth` loader/action wrapper and apply it to the routes:\n```ts\nimport { requireAuth } from \"~/utils/auth\";\n\nexport default [\n  // ... other routes\n  route(\n    \"/api/v1/chat/completions\",\n    \"routes/api.v1.chat.completions.ts\",\n    { loader: requireAuth, action: requireAuth }\n  ),\n  route(\n    \"/api/v1/models\",\n    \"routes/api.v1.models.ts\",\n    { loader: requireAuth }\n  ),\n  // ... other routes\n] satisfies RouteConfig;\n```\nEnsure `requireAuth` validates the session (e.g., via Supabase JWT) and returns a 401/403 response when the user is not authorized."
+    },
+    {
+      "severity": "low",
+      "file": "app/routes.ts",
+      "issue": "The API route paths are missing a leading slash (`\"api/v1/...\"` instead of `\"/api/v1/...\"`). This can cause the router to treat them as relative paths, potentially resulting in 404 errors or unexpected routing behavior.",
+      "fix": "Add the leading slash to the route definitions:\n```ts\nexport default [\n  // ... other routes\n  route(\"/api/v1/chat/completions\", \"routes/api.v1.chat.completions.ts\"),\n  route(\"/api/v1/models\", \"routes/api.v1.models.ts\"),\n  // ... other routes\n] satisfies RouteConfig;\n```"
+    }
+  ],
+  "reviewed_at": "2026-11-10T21:40:36.176Z"
+}
