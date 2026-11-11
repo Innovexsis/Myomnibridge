@@ -1,0 +1,21 @@
+{
+  "task_id": "freedebug-innovexsis-myomnibridge-2026-11-11",
+  "agent": "free-ai-debugger",
+  "status": "issues_found",
+  "summary": "2 findings (1 serious).",
+  "findings": [
+    {
+      "severity": "high",
+      "file": "app/routes.ts",
+      "issue": "API endpoints are defined without a leading slash (e.g., `route(\"api/v1/chat/completions\", ...)`). This makes the routes relative to the current path, potentially exposing them unintentionally and bypassing intended authentication middleware.",
+      "fix": "Add a leading slash to all API route definitions and ensure they are protected by authentication middleware.\n```ts\nimport { type RouteConfig, index, route } from \"@react-router/dev/routes\";\nimport { requireAuth } from \"~/utils/auth\"; // example auth helper\n\nexport default [\n  index(\"routes/landing.tsx\"),\n  route(\"/auth\", \"routes/auth.tsx\"),\n  route(\"/logout\", \"routes/logout.tsx\"),\n  route(\"/api/v1/chat/completions\", \"routes/api.v1.chat.completions.ts\", { loader: requireAuth }),\n  route(\"/api/v1/models\", \"routes/api.v1.models.ts\", { loader: requireAuth }),\n  route(\"/dashboard\", \"routes/dashboard/layout.tsx\", [\n    index(\"routes/dashboard/home.tsx\"),\n    route(\"chat\", \"routes/dashboard/chat.tsx\"),\n    route(\"key-management\", \"routes/dashboard/key-management.tsx\"),\n    route(\"proxy-configurat"
+    },
+    {
+      "severity": "medium",
+      "file": "app/routes.ts",
+      "issue": "The API routes (`/api/v1/chat/completions` and `/api/v1/models`) lack any authentication or authorization checks, allowing unauthenticated users to invoke potentially sensitive operations.",
+      "fix": "Wrap the route handlers with an authentication guard that validates the user's session or API token before proceeding.\n```ts\n// ~/utils/auth.ts\nimport { redirect } from \"@react-router/server\";\n\nexport async function requireAuth({ request }: { request: Request }) {\n  const token = request.headers.get(\"Authorization\")?.replace(/^Bearer\\s+/i, \"\");\n  if (!token || !(await validateToken(token))) {\n    // Redirect to login or return 401\n    throw redirect(\"/auth\");\n  }\n  return null; // allow the route to continue\n}\n\n// In routes.ts (as shown in the previous fix) attach the loader:\nroute(\"/api/v1/chat/completions\", \"routes/api.v1.chat.completions.ts\", { loader: requireAuth })\n```\nThis ensures that only authenticated requests can reach the API endpoints."
+    }
+  ],
+  "reviewed_at": "2026-11-11T21:30:37.539Z"
+}
