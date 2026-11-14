@@ -1,0 +1,21 @@
+{
+  "task_id": "freedebug-innovexsis-myomnibridge-2026-11-14",
+  "agent": "free-ai-debugger",
+  "status": "issues_found",
+  "summary": "2 findings (1 serious).",
+  "findings": [
+    {
+      "severity": "high",
+      "file": "app/root.tsx",
+      "issue": "The base URL is escaped twice: `replace(/\"/g, \"\\\\\\\"\")` is applied and then the result is passed to `JSON.stringify`, which adds another layer of quotes. The generated script sets `window.__OMNIBRIDGE_BASE_URL__` to a string that includes literal quote characters, breaking client‑side requests.",
+      "fix": "Remove the manual replace and let `JSON.stringify` handle escaping, e.g.:\n```tsx\nconst baseUrl = process.env.OMNIBRIDGE_PUBLIC_BASE_URL ?? \"https://omnibridge-dev.vercel.app/api/v1\";\n...\n<script\n  dangerouslySetInnerHTML={{\n    __html: `window.__OMNIBRIDGE_BASE_URL__ = ${JSON.stringify(baseUrl)};`\n  }}\n/>\n```"
+    },
+    {
+      "severity": "medium",
+      "file": "app/routes.ts",
+      "issue": "API routes are defined without a leading slash (e.g., `\"api/v1/chat/completions\"`). This makes them relative to the current route hierarchy, causing them to be unreachable or resolve to unexpected URLs.",
+      "fix": "Add a leading slash to all API route paths:\n```ts\nexport default [\n  index(\"routes/landing.tsx\"),\n  route(\"/auth\", \"routes/auth.tsx\"),\n  route(\"/logout\", \"routes/logout.tsx\"),\n  route(\"/api/v1/chat/completions\", \"routes/api.v1.chat.completions.ts\"),\n  route(\"/api/v1/models\", \"routes/api.v1.models.ts\"),\n  // ... rest unchanged\n] satisfies RouteConfig;\n```"
+    }
+  ],
+  "reviewed_at": "2026-11-14T21:30:36.997Z"
+}
