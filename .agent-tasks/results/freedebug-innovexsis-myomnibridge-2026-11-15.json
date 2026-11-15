@@ -1,0 +1,21 @@
+{
+  "task_id": "freedebug-innovexsis-myomnibridge-2026-11-15",
+  "agent": "free-ai-debugger",
+  "status": "issues_found",
+  "summary": "2 findings (1 serious).",
+  "findings": [
+    {
+      "severity": "high",
+      "file": "app/routes.ts",
+      "issue": "API routes are defined without a leading slash (e.g., \"api/v1/chat/completions\"), causing them to be treated as relative routes and potentially exposing them without proper authentication or routing.",
+      "fix": "Add a leading slash to each API route path and ensure authentication middleware is applied. Example:\n```ts\nexport default [\n  index(\"routes/landing.tsx\"),\n  route(\"/auth\", \"routes/auth.tsx\"),\n  route(\"/logout\", \"routes/logout.tsx\"),\n  route(\"/api/v1/chat/completions\", \"routes/api.v1.chat.completions.ts\"),\n  route(\"/api/v1/models\", \"routes/api.v1.models.ts\"),\n  route(\"/dashboard\", \"routes/dashboard/layout.tsx\", [\n    index(\"routes/dashboard/home.tsx\"),\n    route(\"chat\", \"routes/dashboard/chat.tsx\"),\n    route(\"key-management\", \"routes/dashboard/key-management.tsx\"),\n    route(\"proxy-configuration\", \"routes/dashboard/proxy-configuration.tsx\"),\n    route(\"usage-logs\", \"routes/dashboard/usage-logs.tsx\"),\n    route(\"settings\", \"routes/dashboard/settings.tsx\"),\n  ]),\n] satisfies RouteConfig;\n```"
+    },
+    {
+      "severity": "medium",
+      "file": "app/routes.ts",
+      "issue": "The API route definitions lack explicit authentication/authorization checks, allowing unauthenticated access to potentially sensitive endpoints (chat completions, model listings).",
+      "fix": "Import and apply an auth loader or middleware in the API route files. For example, in `routes/api.v1.chat.completions.ts`:\n```ts\nimport { requireAuth } from '~/utils/auth';\nexport const loader = async ({ request }: LoaderArgs) => {\n  await requireAuth(request);\n  // existing logic...\n};\n```\nRepeat for other API routes, ensuring that any request without valid credentials returns a 401/403 response."
+    }
+  ],
+  "reviewed_at": "2026-11-15T21:30:39.101Z"
+}
